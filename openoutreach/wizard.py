@@ -80,6 +80,12 @@ def apply_to_environment(config: SiteConfig) -> None:
     """
     for variable, value in config.export().items():
         os.environ.setdefault(variable, value)
+    # A token already in the environment would authenticate the upload even
+    # though `export` withheld the stored one. Drop it unless the store was
+    # explicitly turned on for this process.
+    from openoutreach.privacy import silence_hub_credentials
+
+    silence_hub_credentials()
 
 
 # ── the questions ────────────────────────────────────────────────
@@ -103,7 +109,6 @@ def _ask_what_is_missing(config: SiteConfig) -> None:
     _say(_INTRO)
     for field in missing:
         _ASK[field](config)
-    config.newsletter = _newsletter_default(config)
 
 
 def _write_back_from_environment(config: SiteConfig) -> None:
@@ -253,20 +258,6 @@ def _variables_for(fields) -> list[str]:
     return names
 
 
-def _newsletter_default(config: SiteConfig) -> bool:
-    """Skip the question where no opt-in-marketing law applies; keep it where one does.
-
-    ``is_gdpr_protected`` is the broad opt-in set (EU/EEA/UK/CH/CA/BR/AU/JP/KR/NZ) — an
-    operator outside it is auto-subscribed, since silence is consent nowhere but asking
-    anyway would be a redundant question for the jurisdictions that do not require it.
-    """
-    from openoutfind.core.geo import is_gdpr_protected
-
-    if not is_gdpr_protected(config.operator_country_code):
-        return True
-    return _confirm("Subscribe to the OpenOutreach newsletter?")
-
-
 # ── handing it over ──────────────────────────────────────────────
 
 def _check_children() -> None:
@@ -344,11 +335,6 @@ def _ask_paragraph(question: str, *, required: bool = True) -> str:
         if answer or not required:
             return answer
         _say("  This one is needed.")
-
-
-def _confirm(question: str) -> bool:
-    """A yes/no question, defaulting to **no** — silence is never taken for consent."""
-    return _ask(f"{question} [y/N]", required=False).lower().startswith("y")
 
 
 def _looks_like_email(value: str) -> bool | str:

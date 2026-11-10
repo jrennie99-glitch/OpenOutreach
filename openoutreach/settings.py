@@ -29,6 +29,13 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+# Before either child is imported. Hugging Face reads its telemetry switch
+# while its constants module loads, and the finder imports that on the way
+# to the first embedding.
+from openoutreach.privacy import install_env, restrict_state_files
+
+install_env()
+
 from openoutfind import defaults as find_defaults
 
 # Before `django.setup()`, which is why it is a call here and not a name in a dict.
@@ -89,6 +96,10 @@ SECRET_KEY = "openoutreach-has-no-web-surface"
 
 DEBUG = False
 
+# There is no HTTP server. An empty allow-list means a `runserver` someone
+# starts later refuses every Host header instead of answering on 0.0.0.0.
+ALLOWED_HOSTS = []
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -116,3 +127,7 @@ SITE_ID = 1
 # send cap and sending window both count from *their* midnight, not the server's.
 USE_TZ = True
 TIME_ZONE = "UTC"
+
+# The database holds API keys and the mailbox password. `data/` (and
+# `~/.openoutreach` when this is an installed copy) is private to this user.
+restrict_state_files(STATE_DIR, DATABASE_PATH)

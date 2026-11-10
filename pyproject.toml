@@ -77,4 +77,4 @@ Issues = "https://github.com/eracle/OpenOutreach/issues"
 packages = ["openoutreach"]
 
 [tool.hatch.build.targets.sdist]
-include = ["openoutreach", "README.md", "LICENCE.md", "LEGAL_NOTICE.md", "pyproject.toml"]
+include = ["openoutreach", "README.md", "LICENCE.md", "LEGAL_NOTICE.md", "PRIVACY_NOTICE.md", "PRIVACY", "pyproject.toml"]

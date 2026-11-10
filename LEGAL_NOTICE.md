@@ -16,13 +16,8 @@ OpenOutreach performs **no** automated access to any social or professional netw
 - **Profile URLs are identifiers, not fetch targets.** A discovered lead may carry a professional-network profile URL as an opaque identifier. OpenOutreach **stores it and never visits it** — it is a lookup/dedup key, nothing more.
 - **You accept the third-party terms.** You are responsible for using the data provider and email-finder in line with each provider's terms of service and acceptable-use policy.
 
-### 2. Newsletter Subscription (Asked at Onboarding, Default Set by Jurisdiction)
-During onboarding you enter the **country** your operation is based in, and you are then **asked** whether to subscribe the email address you provided to the OpenOutreach newsletter. The question is always asked; only its **default answer** depends on your jurisdiction.
-
-- **Protected jurisdictions**: for operators based in the EU/EEA, UK, Switzerland, Canada, Brazil, Australia, Japan, South Korea, or New Zealand, the default is **no**. An explicit yes is lawful consent anywhere.
-- **Elsewhere**: the default is **yes** — so accepting the prompt without changing it subscribes you.
-- **Unknown location**: if the country cannot be read, the software treats you as protected (default no).
-- **Opting out later**: the choice is made once, at onboarding, and is acted on immediately (a single subscription request); **there is no stored setting to change afterwards**. To leave the list later, use the unsubscribe link in any newsletter email.
+### 2. Newsletter
+Onboarding does **not** subscribe you, and it does not ask. The `newsletter` flag stays false unless you export `OPENOUTFIND_NEWSLETTER=true` yourself. This build does not transmit that flag anywhere: the pinned finder does not read it, and there is no subscription request.
 
 ### 3. No Warranty – Use at Your Own Risk
 OpenOutreach is provided **AS IS**, without warranties of any kind (express or implied), including fitness for a particular purpose, non-infringement, or that it will not cause harm to your accounts, mailboxes, domains, or data.
@@ -55,27 +50,21 @@ Address resolution runs through a **third-party email-finder** (e.g. BetterConta
 - **If you export and send elsewhere instead, the whole duty moves with the sending.** Your sequencer becomes the only thing that can honour an opt-out. Instantly and Smartlead both block a suppressed address at import; confirm your own tool does the same, and **turn on its import deduplication** (opt-in on Smartlead, undocumented on Instantly) or exporting the same lead twice can contact the same person twice.
 - **Accuracy**: finder results may be wrong, stale, or belong to a different person. You are responsible for whom you contact and what you send.
 
-### 6. Central Contacts Store (Contribution and Resolution)
-OpenOutreach connects to a **central contacts store operated by the project maintainer** (`hub.openoutreach.app`). It pools two things across the OpenOutreach network: work email addresses, so a contact one operator has already paid to resolve can be served — for free — to another; and the professional profiles discovery returns, so the pool of people outlives the free index they came from. By running the software you participate as described here.
+### 6. Central Contacts Store — off in this build
+The upstream finder can connect to a **central contacts store** at `hub.openoutreach.app`: it registers the operator's email, and (for an operator outside the EEA/UK/CH) uploads discovery profiles and resolved work emails. **This build does not.** Those calls are replaced with no-ops when the process starts, the stored token is not exported, and the hostname is refused at name resolution.
 
-- **Resolved addresses — what is sent, and when**: **after a paid email-finder returns a verified work email**, OpenOutreach sends the person's **profile identifier** (the stored, never-fetched profile URL), the **country code** searched, and the **work email address(es)** resolved.
-- **Discovery profiles — what is sent, and when**: **every page of results a Lead Finder search returns** is sent as one batch, including people your campaign discards and people you already hold. Each row carries the **profile identifier**, the **country code** searched, and the row's professional fields as the provider returned them — **name, headline, job title, seniority, industry, state/region and country, employer name and domain, employer industry** — plus a **384-dimension numeric vector** computed locally from those fields and the name of the model that produced it. The employer's free-text **description and keywords are never sent**: the provider fuzzy-matches them and they often describe a different company. **No email address is part of this record, and it earns no store credit.**
-- **Your provider's terms are yours to check.** Discovery profiles are results of searches run with **your own** Lead Finder key. Whether that provider's terms let you pass its results to a third party is a question between you and it.
-- **Whether you contribute is derived from your country — it is not a setting.** If your operation is **not** based in the EU/EEA, UK, or Switzerland, contribution is **on**, and **there is no toggle to turn it off**: it can be disabled only by modifying the source, which the licence permits. If your operation **is** based there, the software contributes nothing at all (an unreadable country is treated as protected).
-- **The consequence for protected operators.** The store works give-to-get: an operator's access token is minted by their **first contribution**. An EEA/UK/CH-based operator therefore never contributes, never earns a token, and so **never resolves from the store** — every lookup falls through to the paid finder. This is a structural consequence of the jurisdiction rule, not a penalty, and it means the store cannot lower your costs if you are based there.
-- **Geo-gate on the people in the store**: independently of where *you* are, a contact located in the **EU/EEA, UK, or Switzerland — or whose location cannot be determined — is never written to the store.** This gate runs authoritatively **server-side**; the client's pre-filter is only a bandwidth optimisation.
-- **Resolution is a disclosure to third parties.** OpenOutreach reads the store *first*, before spending a paid finder credit. A hit is served free. So an email you contribute **may be disclosed to other operators** to contact that person, and emails others contributed may be disclosed to you. This is a disclosure of personal data to a third party — in substance the commercial-contact-data model (Apollo, Cognism, Dropcontact). It is **not** a sale of data, but it **is** a separate processing purpose from your own outreach.
-- **Your role and responsibilities.** Where data-protection law applies, contributing and resolving personal data is processing for which you may be a controller or joint controller alongside the maintainer. **You remain responsible** for a lawful basis (the project relies on legitimate interest for B2B professional contact data only), for honouring access/erasure/objection requests, and for any required notices.
-- **Suppression / opt-out.** Any person whose email or profile is in the store can be removed and blocked from re-entry via the store's suppression mechanism (`POST /api/v2/suppress/`), honoured across the whole store. The store publishes a separate **Privacy Notice** for those people at <https://hub.openoutreach.app/privacy/>.
+- **The switch is off, and nothing in the wizard turns it on.** Set `OPENOUTREACH_ENABLE_HUB=1` in the environment before starting the process to use the store. That is an explicit choice to upload prospect data to the maintainer's server; do not set it unless you mean to. What the store then receives, and the rights of the people in it, are described in [PRIVACY_NOTICE.md](PRIVACY_NOTICE.md).
+- **`outfind` run on its own is not this process.** The guard lives in the `openoutreach` command. A standalone `outfind` install still contains the upstream client. Use `openoutreach` (or do not point a standalone finder at a database you consider private).
+- **Every other outbound call** is listed in [PRIVACY/NETWORK.md](PRIVACY/NETWORK.md).
 
 ### 7. Your Responsibility
 By downloading, installing, configuring, or running OpenOutreach, you:
 - Confirm you are of legal age and have authority to accept these terms
 - Agree to use the tool only in compliance with all applicable laws (data-protection/privacy law such as GDPR, anti-spam law such as CAN-SPAM/CASL) and with the terms of every third-party service you connect
 - Accept full responsibility for the contacts you process, and for every email sent to them from your mailbox — whether this software sent it or a tool of your own did
-- Understand that modifying the code to disable the hub contribution is permitted under the licence, but remains your responsibility
+- Understand that turning the contacts store back on (`OPENOUTREACH_ENABLE_HUB=1`) is your decision and your responsibility
 
-If you do **not** agree with any part of this notice — especially the central contacts store — **do not use this software**. Delete it immediately.
+If you do **not** agree with any part of this notice, **do not use this software**. Delete it immediately.
 
 Questions or concerns? Open an issue on the repository or contact the maintainer(s).
 

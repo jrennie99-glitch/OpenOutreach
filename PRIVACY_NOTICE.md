@@ -1,5 +1,7 @@
 # Privacy Notice — OpenOutreach Contacts Store
 
+> **This build does not contact `hub.openoutreach.app`.** The text below describes the store the upstream project operates. OpenOutreach as run by the `openoutreach` command does not register an install, contribute profiles, or resolve emails against that store unless the process is started with `OPENOUTREACH_ENABLE_HUB=1`. What this program does contact is listed in [PRIVACY/NETWORK.md](PRIVACY/NETWORK.md).
+
 _This notice explains how the central contacts store operated at `hub.openoutreach.app` collects, uses, and discloses personal data. It is published for the people whose work contact details may appear in the store and for the operators who contribute to and read from it._
 
 ## Who operates the store

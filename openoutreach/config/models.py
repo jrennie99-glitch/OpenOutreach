@@ -94,7 +94,8 @@ class SiteConfig(models.Model):
     operator_email = models.EmailField(blank=True, default="")
     # ISO-3166 alpha-2 — the operator's *jurisdiction*, not a target market.
     operator_country_code = models.CharField(max_length=2, blank=True, default="")
-    # Consent, and never a default: silence is not a yes in any jurisdiction.
+    # Stored only. Nothing in this build transmits it, and onboarding does not
+    # set it. An explicit OPENOUTFIND_NEWSLETTER=true is copied onto the row.
     newsletter = models.BooleanField(default=False)
 
     # ── the mailbox this install sends from ───────────────────────
@@ -143,8 +144,15 @@ class SiteConfig(models.Model):
         # The two maps are walked separately, never merged: they are keyed by *field*,
         # and most fields appear in both, so merging them would silently keep one
         # child's variable and drop the other's.
+        from openoutreach.privacy import hub_enabled
+
         for mapping in (FINDER_ENV, SENDER_ENV):
             for field, variable in mapping.items():
+                # The contacts-store token is how a run authenticates an
+                # upload of prospect rows. It is not exported unless this
+                # process was started with the store explicitly enabled.
+                if field == "contacts_api_token" and not hub_enabled():
+                    continue
                 value = getattr(self, field)
                 if isinstance(value, bool):
                     environment[variable] = "true" if value else "false"

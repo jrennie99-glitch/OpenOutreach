@@ -19,6 +19,21 @@ FROM python:3.12-slim-bookworm AS runtime
 COPY --from=deps /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Set before any Python import. Hugging Face reads its telemetry switch at
+# import, and the process also sets these in code; the image does it first
+# so a shell inside the container inherits the same default.
+ENV HF_HUB_DISABLE_TELEMETRY=1 \
+    HF_HUB_DISABLE_IMPLICIT_TOKEN=1 \
+    DISABLE_TELEMETRY=1 \
+    DO_NOT_TRACK=1 \
+    ANONYMIZED_TELEMETRY=false \
+    CREWAI_DISABLE_TELEMETRY=true \
+    LANGCHAIN_TRACING_V2=false \
+    LANGSMITH_TRACING=false \
+    OTEL_SDK_DISABLED=true \
+    ANTHROPIC_OPEN_TELEMETRY=false \
+    OUTSEND_REPLIES=hold
+
 ENV EDITOR=nano
 
 # The email-first daemon is browserless — no Playwright, no Xvfb, no VNC.
