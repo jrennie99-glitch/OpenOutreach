@@ -86,6 +86,9 @@ Everything lives in `~/.openoutreach`, so stopping and starting loses nothing: t
 for is *more than you already have*, so running it again continues where it left off. No browser,
 no daemon manager, no container.
 
+What the process contacts, and what it refuses to, is [PRIVACY/NETWORK.md](PRIVACY/NETWORK.md).
+The central contacts store is off unless you start it with `OPENOUTREACH_ENABLE_HUB=1`.
+
 ---
 
 ## 🤖 Use it from Claude Code

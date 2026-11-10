@@ -100,6 +100,13 @@ def extract_db_path(argv):
 
 def main(argv=None):
     """Answer the invocation, in this process, whichever child owns the verb."""
+    # Before Django imports either child. `settings` does this too; a path
+    # that reaches a library first would be too late for the flags those
+    # libraries read at import.
+    from openoutreach.privacy import install_env
+
+    install_env()
+
     argv, db_path = extract_db_path(list(sys.argv if argv is None else argv))
     if wants_the_overview(argv):
         print(OVERVIEW, end="")

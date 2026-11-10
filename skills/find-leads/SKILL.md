@@ -286,6 +286,10 @@ Three things to know if you do run one:
   at most N credits — where a bare `find N` cannot spend at all.
 - **`send` has its own clocks.** A sending window, a daily cap and pacing between messages all sit
   between "queued" and "sent", so a pass can legitimately open nothing and still succeed.
+- **Replies are held.** `OUTSEND_REPLIES` defaults to `hold`: a pass reads the mailbox and records
+  a clear "stop" / "unsubscribe" on the suppression list, and it does not answer other replies
+  until the operator sets `OUTSEND_REPLIES=model` (or answers them with `--agent-draft`). Cold
+  openers still go out when `send` or `run` was asked for.
 - **`run` is `find --json` piped into the sender**, in one process. If the search stops short, what
   it found is still sent — a partial find is not a failed run.
 

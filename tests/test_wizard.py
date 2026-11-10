@@ -196,17 +196,26 @@ class TestWritingEnvironmentAnswersBack:
 
 
 class TestTheNewsletterDefault:
-    """Jurisdiction-aware: no opt-in-marketing law, no question."""
+    """Onboarding does not subscribe anyone. The flag stays false unless exported."""
 
-    def test_a_non_protected_country_auto_subscribes_without_asking(self, monkeypatch):
-        monkeypatch.setattr(wizard, "_confirm", _refuse)
+    def test_finishing_setup_does_not_subscribe_anyone(self, db, monkeypatch):
+        config = SiteConfig.load()
+        for field, value in ANSWERS.items():
+            setattr(config, field, value)
+        config.product_docs = ""
+        config.campaign_target = ""
+        monkeypatch.setattr("sys.stdin.isatty", lambda: True)
 
-        assert wizard._newsletter_default(SiteConfig(operator_country_code="us")) is True
+        def answer_the_campaign(row):
+            row.product_docs = "x"
+            row.campaign_target = "y"
 
-    def test_a_protected_country_still_asks(self, monkeypatch):
-        monkeypatch.setattr(wizard, "_confirm", lambda question: True)
+        # `_ASK` holds the function object, so patching the name is not enough.
+        monkeypatch.setitem(wizard._ASK, "product_docs", answer_the_campaign)
 
-        assert wizard._newsletter_default(SiteConfig(operator_country_code="de")) is True
+        wizard._ask_what_is_missing(config)
+
+        assert config.newsletter is False
 
 
 def _refuse(*args, **kwargs):
