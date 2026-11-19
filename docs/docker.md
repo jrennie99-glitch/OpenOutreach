@@ -1,7 +1,7 @@
-# Docker — Running OpenOutreach on a Server
+# Docker — Running CybrReach on a Server
 
-> **This is not the install path.** The supported install is `uvx openoutreach find 10` (or
-> `pip install openoutreach`) — see the README quick start. This page is for running it unattended on
+> **This is not the install path.** The supported install is `uvx cybrreach find 10` (or
+> `pip install cybrreach`) — see the README quick start. This page is for running it unattended on
 > a server, which is the one job the image still does better than a shell.
 > Development and tests run natively; there is no `docker-test`.
 
@@ -18,7 +18,7 @@ installed package, and nothing from the build stage.
 Pre-built images are published to GitHub Container Registry.
 
 ```bash
-docker run --pull always -it -v ~/.openoutreach/data:/app/data \
+docker run --pull always -it -v ~/.cybrreach/data:/app/data \
   ghcr.io/eracle/openoutreach:latest 10 emails > leads.csv
 ```
 
@@ -32,9 +32,9 @@ docker run --pull always -it -v ~/.openoutreach/data:/app/data \
   is already set is not asked. Missing something with no TTY, it exits naming the variables rather
   than hanging on a prompt. Do not pass `-t` when redirecting: a TTY makes stdout and
   stderr the same stream, and the CSV would arrive with the logs mixed into it.
-- `-v ~/.openoutreach/data:/app/data` persists everything on your host across restarts — one SQLite
+- `-v ~/.cybrreach/data:/app/data` persists everything on your host across restarts — one SQLite
   file holding the leads, the walk, the mail log and the answers onboarding was given. The image
-  sets `OPENOUTREACH_DB=/app/data/db.sqlite3`.
+  sets `CYBRREACH_DB=/app/data/db.sqlite3`.
 
 There are **no ports to publish** — there is no web server of its own and no browser to watch.
 (To browse your CRM, run the Django Admin separately; see below.)
@@ -53,12 +53,12 @@ The container exits when its goal is met, so "keep it running" is a scheduling q
 whatever schedules things on that host. A systemd timer firing hourly:
 
 ```ini
-# openoutreach.service — pair with a .timer of your choosing
+# cybrreach.service — pair with a .timer of your choosing
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/docker run --rm -v /srv/openoutreach:/app/data \
+ExecStart=/usr/bin/docker run --rm -v /srv/cybrreach:/app/data \
   ghcr.io/eracle/openoutreach:latest 10 emails
-StandardOutput=append:/srv/openoutreach/leads.csv
+StandardOutput=append:/srv/cybrreach/leads.csv
 ```
 
 Exit 0 means the goal was met; non-zero means it stopped short and said why on stderr, which the
@@ -69,12 +69,12 @@ restarting.
 ### Look at what it found
 
 **There is no web surface.** The bundled binary is a CLI over two libraries and ships no URLconf and
-no Django Admin — its answers are `openoutreach status`, the CSV that `openoutreach find 0` prints,
+no Django Admin — its answers are `cybrreach status`, the CSV that `cybrreach find 0` prints,
 and the SQLite file itself:
 
 ```bash
-docker run --rm -v /srv/openoutreach:/app/data \
-  ghcr.io/eracle/openoutreach:latest openoutreach status
+docker run --rm -v /srv/cybrreach:/app/data \
+  ghcr.io/eracle/openoutreach:latest cybrreach status
 ```
 
 To browse the rows in a GUI, open `/app/data/db.sqlite3` with any SQLite client — one file holds the
@@ -97,7 +97,7 @@ directory per operator, each with its own CRM.
 
 ```bash
 git clone https://github.com/eracle/OpenOutreach.git
-cd OpenOutreach
+cd CybrReach
 
 # Build and start
 make up
@@ -128,14 +128,14 @@ To run against a database file you already have, bind-mount the host **directory
 `/app/data` (the image opens `/app/data/db.sqlite3`):
 
 ```bash
-docker run --pull always -v ~/.openoutreach/data:/app/data ghcr.io/eracle/openoutreach:latest
+docker run --pull always -v ~/.cybrreach/data:/app/data ghcr.io/eracle/openoutreach:latest
 ```
 
-Place your `db.sqlite3` inside the mounted directory (`~/.openoutreach/data/` above; swap for your own
+Place your `db.sqlite3` inside the mounted directory (`~/.cybrreach/data/` above; swap for your own
 path). Two caveats: the dir and file must be writable by uid 1000 (the container user) or writes fail
 with `readonly database`; and `find` applies migrations on the way in, so back the file up first
 (`cp db.sqlite3{,.bak}`) if it's precious.
 
-Note that a native install uses the **same default path**, so `uvx openoutreach` and the container can
+Note that a native install uses the **same default path**, so `uvx cybrreach` and the container can
 be pointed at one CRM — but never at the same time. **One job per database, ever**: SQLite's WAL lets
 `status` read alongside a running job, not two jobs write.

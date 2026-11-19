@@ -31,7 +31,7 @@ jobs:
   # derived here, not committed, because PyPI numbers are single-use and permanent.
   #
   # This is deliberate, and it is the answer to how `0.1.0` went stale: it was tagged by
-  # hand, twelve commits of first-run work landed behind it, and `uvx openoutreach` kept
+  # hand, twelve commits of first-run work landed behind it, and `uvx cybrreach` kept
   # serving the version before all of them. A release nobody has to remember cannot drift.
   # The cost is accepted: every commit that passes CI is public and permanent, so `main`
   # is the release branch and a broken merge reaches installers within minutes. `needs:
@@ -117,7 +117,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./compose/openoutreach/Dockerfile
+          file: ./compose/cybrreach/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

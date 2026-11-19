@@ -1,22 +1,22 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "openoutreach",
-  "description": "The OpenOutreach plugin for Claude Code — find B2B leads that fit, with the reason written out.",
+  "name": "cybrreach",
+  "description": "The CybrReach plugin for Claude Code \u2014 find B2B leads that fit, with the reason written out.",
   "owner": {
-    "name": "OpenOutreach",
-    "email": "hello@openoutreach.app"
+    "name": "CybrReach",
+    "email": "hello@ardynamicsinc.com"
   },
   "plugins": [
     {
-      "name": "openoutreach",
-      "description": "Find qualified B2B leads from inside Claude Code — drives the OpenOutreach CLI, reads the CSV it prints, and hands the rows to whatever you send with.",
+      "name": "cybrreach",
+      "description": "Find qualified B2B leads from inside Claude Code \u2014 drives the CybrReach CLI, reads the CSV it prints, and hands the rows to whatever you send with.",
       "author": {
-        "name": "OpenOutreach",
-        "email": "hello@openoutreach.app"
+        "name": "CybrReach",
+        "email": "hello@ardynamicsinc.com"
       },
       "category": "productivity",
       "source": "./",
-      "homepage": "https://openoutreach.app"
+      "homepage": "https://ardynamicsinc.com"
     }
   ]
 }

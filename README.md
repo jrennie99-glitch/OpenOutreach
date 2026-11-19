@@ -1,12 +1,12 @@
-![OpenOutreach Logo](docs/logo.png)
+![CybrReach Logo](docs/logo.png)
 
-# OpenOutreach — open-source AI agent for B2B lead generation
+# CybrReach — open-source AI agent for B2B lead generation
 
 > **Describe your product. Define your target market. The AI finds the people who fit, tells you why each one does, and emails them.**
 >
 > Self-hosted CLI. One install, one onboarding, one command.
 >
-> Rather not run it yourself? [Get ten leads free at openoutreach.app](https://openoutreach.app/?utm_source=github&utm_medium=readme&utm_campaign=openoutreach-top), each with the reason it fits.
+> Rather not run it yourself? [CybrReach is part of the AR Dynamics outreach stack](https://ardynamicsinc.com) — same engine, warmed sending domains included.
 
 <div align="center">
 
@@ -25,9 +25,9 @@
 
 ---
 
-### 🚀 What is OpenOutreach?
+### 🚀 What is CybrReach?
 
-OpenOutreach is a **self-hosted, open-source lead finder that qualifies for you — and then writes
+CybrReach is a **self-hosted, open-source lead finder that qualifies for you — and then writes
 the email.** You describe your product and your target market; it discovers matching people from a
 **licensed data provider**, judges each one against the ICP it learned from your description, hands
 you the ones that fit **with the reason each was chosen written out**, and opens the conversation
@@ -44,7 +44,7 @@ It has **zero platform-ToS surface**: browserless, no social-network account, no
 no account to get banned, because there is no account.
 
 > **Rather not run it yourself?** I run it for you. Tell me what you sell and who buys it at
-> **[openoutreach.app](https://openoutreach.app/?utm_source=github&utm_medium=readme&utm_campaign=openoutreach)**
+> **[ardynamicsinc.com](https://ardynamicsinc.com)**
 > and I send back ten LinkedIn profiles that fit, each with the reason written out, free. After
 > that it's $2 a lead. Nothing to install, no keys, no account.
 
@@ -53,41 +53,41 @@ no account to get banned, because there is no account.
 ## ⚡ Quick Start
 
 ```bash
-uv tool install openoutreach
-openoutreach
+uv tool install cybrreach
+cybrreach
 ```
 
-That is the whole thing. A bare `openoutreach` onboards you if it has to, finds leads that fit,
+That is the whole thing. A bare `cybrreach` onboards you if it has to, finds leads that fit,
 buys a verified work address for each, and emails them from your mailbox — narrating what it did as
 it goes. One install, one wizard, one command.
 
 Prefer to say it out loud, or to set the size of the first run?
 
 ```bash
-openoutreach run 5        # find five leads carrying an address, then send — at most 5 credits
+cybrreach run 5        # find five leads carrying an address, then send — at most 5 credits
 ```
 
 **The verbs:**
 
 ```bash
-openoutreach                  # onboard if needed, then find and send
-openoutreach run 5            # ...with an explicit goal
-openoutreach init             # onboard only — one flow, every answer, nothing spent
-openoutreach init --product-docs product.md --target target.md   # ...the two long fields from files
-openoutreach find 10          # ten more qualified leads → CSV on stdout — free, cannot spend
-openoutreach find 10 emails   # ...carrying a work email (one credit each)
-openoutreach find 0           # no work — print what you already have
-openoutreach send             # mail what is already stored
-openoutreach send 5           # ...until five conversations are open
-openoutreach status           # what is configured, blocked and counted
+cybrreach                  # onboard if needed, then find and send
+cybrreach run 5            # ...with an explicit goal
+cybrreach init             # onboard only — one flow, every answer, nothing spent
+cybrreach init --product-docs product.md --target target.md   # ...the two long fields from files
+cybrreach find 10          # ten more qualified leads → CSV on stdout — free, cannot spend
+cybrreach find 10 emails   # ...carrying a work email (one credit each)
+cybrreach find 0           # no work — print what you already have
+cybrreach send             # mail what is already stored
+cybrreach send 5           # ...until five conversations are open
+cybrreach status           # what is configured, blocked and counted
 ```
 
-Everything lives in `~/.openoutreach`, so stopping and starting loses nothing: the number you ask
+Everything lives in `~/.cybrreach`, so stopping and starting loses nothing: the number you ask
 for is *more than you already have*, so running it again continues where it left off. No browser,
 no daemon manager, no container.
 
 What the process contacts, and what it refuses to, is [PRIVACY/NETWORK.md](PRIVACY/NETWORK.md).
-The central contacts store is off unless you start it with `OPENOUTREACH_ENABLE_HUB=1`.
+The central contacts store is off unless you start it with `CYBRREACH_ENABLE_HUB=1`.
 
 ---
 
@@ -97,7 +97,7 @@ This repo ships a **Claude Code plugin**, so you can pull leads without leaving 
 
 ```
 /plugin marketplace add eracle/OpenOutreach
-/plugin install openoutreach@openoutreach
+/plugin install cybrreach@cybrreach
 ```
 
 The skill (`skills/find-leads/SKILL.md`) teaches Claude when to run `find`, which flags cost credits
@@ -105,22 +105,22 @@ and which cannot, how to read the CSV on stdout, and what each `error: <type>` m
 an address you did not ask for, and never sends without being asked. Prefer skills to plugins? Copy `skills/find-leads/` into `~/.claude/skills/` instead.
 
 **Not on Claude Code?** The skill is a markdown file describing the CLI's own contract — nothing
-Claude-specific is required to use `openoutreach` itself. Codex, Cursor, or any other agent can call
-the same `openoutreach find` / `send` / `run` / `status` commands directly; point your agent's
+Claude-specific is required to use `cybrreach` itself. Codex, Cursor, or any other agent can call
+the same `cybrreach find` / `send` / `run` / `status` commands directly; point your agent's
 instructions file at `skills/find-leads/SKILL.md` and it reads the same rules.
 
 ---
 
 ## 🧩 Three packages, one product
 
-OpenOutreach is an **orchestrator**. The finding and the sending are two standalone programs, and
+CybrReach is an **orchestrator**. The finding and the sending are two standalone programs, and
 this package installs both and hosts them in one process, one database and one onboarding:
 
 | Package | What it is | Standalone |
 |---|---|---|
 | [**OpenOutFind**](https://github.com/eracle/OpenOutFind) | discovery, qualification, enrichment, the CRM | `uvx --from openoutfind outfind find 10` |
 | [**OpenOutSend**](https://github.com/eracle/OpenOutSend) | the outreach agent, the mailbox, the send guards | `uvx --from openoutsend outsend send` |
-| **OpenOutreach** (this) | one install, one wizard, one command over both | — |
+| **CybrReach** (this) | one install, one wizard, one command over both | — |
 
 **The wizard is here because the children do not have one.** Both are agent-first: they read their
 configuration from `OPENOUTFIND_*` / `OUTSEND_*` on every run and remember none of it, which is
@@ -136,7 +136,7 @@ outfind find 50 --json | outsend      # anybody's producer, anybody's receiver
 outsend send                          # a separate invocation, on the mailbox's clock
 ```
 
-`openoutreach run` is that same pipe, in one process — the JSON Lines still cross the boundary, they
+`cybrreach run` is that same pipe, in one process — the JSON Lines still cross the boundary, they
 just cross it in a buffer. There is no privileged in-memory hand-off, because a second, untested path
 between the same two programs would make the public one a lie.
 
@@ -150,7 +150,7 @@ take the two CLIs and the pipe. If you want to see whether this works, take the 
 The finder's deliverable is a file, and it is shaped for the tools you already send with:
 
 ```bash
-openoutreach find 10 emails > leads.csv
+cybrreach find 10 emails > leads.csv
 ```
 
 It runs until it has ten more leads carrying an address, prints **every lead you have** as CSV, and
@@ -184,15 +184,15 @@ arrives as a custom variable you can merge into a template.
 | # | What | Example |
 |---|------|---------|
 | 1 | **An LLM API key** | OpenAI, Anthropic, or any OpenAI-compatible endpoint |
-| 2 | **An email-finder API key** ([BetterContact](https://bettercontact.rocks?fpr=openoutreach)) | **Free account: 40 credits, no card.** Powers **both** discovery (Lead Finder, billed nothing) and enrichment (one credit per verified work email) |
+| 2 | **An email-finder API key** ([BetterContact](https://bettercontact.rocks?fpr=cybrreach)) | **Free account: 40 credits, no card.** Powers **both** discovery (Lead Finder, billed nothing) and enrichment (one credit per verified work email) |
 | 3 | **A product description + target market** | "We sell cloud cost optimization for DevOps teams at mid-market SaaS companies" |
 | 4 | **A mailbox to send from** | Its address and an **app password** — not your login password. Google Workspace works out of the box; any other provider names its SMTP/IMAP host and port |
 
-No keys yet? [Ask for ten leads at openoutreach.app](https://openoutreach.app/?utm_source=github&utm_medium=readme&utm_campaign=openoutreach-needs)
+No keys yet? Start with the self-hosted quickstart above, or use [AR Dynamics outreach service](https://ardynamicsinc.com) and we run it for you.
 and I'll find them for you, free.
 
 Onboarding asks for all four in one pass and **asks only once** — the answers are kept in
-`~/.openoutreach`, and every later run exports them into the variables the children read. A question
+`~/.cybrreach`, and every later run exports them into the variables the children read. A question
 whose variable is already exported is not asked at all, so an operator or a unit file that sets
 `OPENOUTFIND_*` / `OUTSEND_*` never has to repeat it into a prompt; that is what makes a headless
 install possible. With no TTY and something still unanswered, setup stops **naming the variables**
@@ -202,18 +202,18 @@ The two long fields are read from files, not flags — a markdown paragraph shel
 command line corrupts quietly:
 
 ```bash
-openoutreach init --product-docs product.md --target target.md
+cybrreach init --product-docs product.md --target target.md
 ```
 
 The LLM key is **verified at the prompt**, and the mailbox by a real SMTP login before setup
 finishes: a wrong key is an answer you can retype, not a traceback halfway through a run.
 
-The BetterContact link above is an **affiliate link** — signing up through it supports OpenOutreach,
+The BetterContact link above is an **affiliate link** — signing up through it supports CybrReach,
 at no markup to you.
 
 ---
 
-**Why choose OpenOutreach?**
+**Why choose CybrReach?**
 
 - 🧠 **You don't need a list** — describe your product; it finds candidates from licensed data
 - 📝 **A stated reason per lead** — read exactly why the agent picked someone, and fix the description when it is wrong
@@ -221,14 +221,14 @@ at no markup to you.
 - 🛡️ **Zero platform-ToS surface** — browserless, no social-network account, no scraping — nothing to get banned
 - 💸 **Pay only for what resolves** — searching is free; a paid lookup is rationed and billed on a verified hit
 - 📤 **Or export where you already work** — CSV in the shape the sequencer importers expect
-- ⚡ **One-command setup** — `uv tool install openoutreach && openoutreach`
+- ⚡ **One-command setup** — `uv tool install cybrreach && cybrreach`
 
 Every comparable tool that qualifies leads for you is paid SaaS. This one is open source under Apache 2.0, runs on your
 machine, and you bring your own provider keys.
 
 ---
 
-## 💸 How OpenOutreach Stays Free
+## 💸 How CybrReach Stays Free
 
 **Affiliate links, and that is now the whole of it.** The one paid third-party service the tool
 relies on — the lead-data provider — is surfaced during onboarding through an affiliate link. Sign
@@ -266,13 +266,13 @@ beat picking at random, and no claim is made that it does.)*
 This repo is the orchestrator and holds no pipeline of its own — that is the point of it:
 
 ```
-├── openoutreach/
-│   ├── __main__.py     # the `openoutreach` console script: find · send · status · run
+├── cybrreach/
+│   ├── __main__.py     # the `cybrreach` console script: find · send · status · run
 │   ├── settings.py     # one Django registry hosting both children's apps, on one database
 │   ├── config/         # the one model: the answers you gave, and the variables they export as
 │   └── wizard.py       # one onboarding — ask once, keep it, hand it to both children
 ├── tests/              # the registry, the wizard's row and export, the CLI's own decisions
-├── manage.py           # checkout shim over openoutreach/__main__.py
+├── manage.py           # checkout shim over cybrreach/__main__.py
 ├── pyproject.toml      # package metadata, pinned children, console script
 ├── local.yml           # Docker Compose — the server deploy only
 └── Makefile            # Shortcuts (setup, run, find, test)
@@ -284,7 +284,7 @@ This repo is the orchestrator and holds no pipeline of its own — that is the p
 
 ```bash
 git clone https://github.com/eracle/OpenOutreach.git
-cd OpenOutreach
+cd CybrReach
 make setup              # install -e ".[dev]" + migrate both children's apps
 make run                # onboard, find, send
 make test
@@ -303,7 +303,7 @@ that — see the **[Docker Guide](./docs/docker.md)**.
 ## 💬 Channel
 
 Join for support and discussions:
-[Telegram Channel](https://t.me/openoutreach)
+[Telegram Channel](https://t.me/cybrreach)
 
 ---
 
@@ -321,7 +321,7 @@ Book a **free 15-minute call** — I'd love to hear your needs and improve the t
 
 ---
 
-### ❤️ Support OpenOutreach
+### ❤️ Support CybrReach
 
 This project is built in spare time to provide powerful, **free** open-source growth tools. Your sponsorship funds faster updates and keeps it free for everyone.
 

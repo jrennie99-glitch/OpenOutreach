@@ -1,4 +1,4 @@
-# openoutreach/settings.py
+# cybrreach/settings.py
 """Django settings for the orchestrator: one registry hosting both children's apps.
 
 `openoutfind` and `openoutsend` are Django projects in their own right, and each keeps
@@ -17,7 +17,7 @@ are `find`, `send`, `status` and `run`, and the config surface is the wizard. `S
 exists because Django insists on one; naming that in the value is more honest than
 generating a secret nobody uses.
 
-**This project has exactly one app and one model** — `openoutreach.config.SiteConfig`, the
+**This project has exactly one app and one model** — `cybrreach.config.SiteConfig`, the
 answers a person gave. It is here because this is the program with a person in front of
 it: the children are agent-first and read their configuration from the environment on
 every run, keeping none of it, so somebody has to remember what was typed, and it is not
@@ -32,7 +32,7 @@ from pathlib import Path
 # Before either child is imported. Hugging Face reads its telemetry switch
 # while its constants module loads, and the finder imports that on the way
 # to the first embedding.
-from openoutreach.privacy import install_env, restrict_state_files
+from cybrreach.privacy import install_env, restrict_state_files
 
 install_env()
 
@@ -47,20 +47,20 @@ BASE_DIR = ROOT_DIR
 
 
 def state_dir(root: Path) -> Path:
-    """Where the operator's own files live: the checkout, or `~/.openoutreach` installed.
+    """Where the operator's own files live: the checkout, or `~/.cybrreach` installed.
 
     Both children make the same choice for the same reason — from a wheel the package
     directory is inside site-packages, which is no place for a CRM, a mail history or a
     model cache, and may not be writable.
     """
-    return root if (root / "manage.py").exists() else Path.home() / ".openoutreach"
+    return root if (root / "manage.py").exists() else Path.home() / ".cybrreach"
 
 
 STATE_DIR = state_dir(ROOT_DIR)
 
-# `--db PATH` sets OPENOUTREACH_DB. One file: the finder's leads and the sender's mail log
+# `--db PATH` sets CYBRREACH_DB. One file: the finder's leads and the sender's mail log
 # are rows in the same store, which is the whole point of hosting both app sets here.
-DATABASE_PATH = Path(os.environ.get("OPENOUTREACH_DB") or STATE_DIR / "data" / "db.sqlite3").expanduser()
+DATABASE_PATH = Path(os.environ.get("CYBRREACH_DB") or STATE_DIR / "data" / "db.sqlite3").expanduser()
 DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # The sender resolves its own root at import time, and left alone it would answer
@@ -84,7 +84,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     # This host's one model: the answers a person gave, which both children then read as
     # their environment. First, because the wizard writes it before either child runs.
-    "openoutreach.config.apps.ConfigAppConfig",
+    "cybrreach.config.apps.ConfigAppConfig",
     "openoutfind.crm.apps.CrmConfig",
     "openoutfind.core.apps.CoreConfig",
     # The sender's deal machine: a deal's state and the log of its moves (AgenticFSM).
@@ -94,7 +94,7 @@ INSTALLED_APPS = [
     "openoutsend.emails",
 ]
 
-SECRET_KEY = "openoutreach-has-no-web-surface"
+SECRET_KEY = "cybrreach-has-no-web-surface"
 
 DEBUG = False
 
@@ -106,7 +106,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": str(DATABASE_PATH),
-        # WAL lets `openoutreach status` read while a find or send pass holds a write
+        # WAL lets `cybrreach status` read while a find or send pass holds a write
         # lock; without it a concurrent read fails with "database is locked".
         "OPTIONS": {
             "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;",
@@ -131,5 +131,5 @@ USE_TZ = True
 TIME_ZONE = "UTC"
 
 # The database holds API keys and the mailbox password. `data/` (and
-# `~/.openoutreach` when this is an installed copy) is private to this user.
+# `~/.cybrreach` when this is an installed copy) is private to this user.
 restrict_state_files(STATE_DIR, DATABASE_PATH)

@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from openoutreach import __main__ as cli
+from cybrreach import __main__ as cli
 
 LEAD = {"lead_id": "lead-1", "email": "sam@example.com", "first_name": "Sam"}
 
@@ -25,7 +25,7 @@ def test_run_enrols_what_was_found_in_the_cold_sequence_and_sends():
     from openoutsend.leads.models import Deal
 
     sent = []
-    with patch("openoutreach.wizard.onboard"), \
+    with patch("cybrreach.wizard.onboard"), \
             patch("django.core.management.call_command", side_effect=_find_one_lead), \
             patch.object(cli, "_send", side_effect=lambda rest: sent.append(rest) or 0):
         assert cli._run([]) == 0

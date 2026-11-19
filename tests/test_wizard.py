@@ -6,8 +6,8 @@ person's answers between runs, and hand each child its own vocabulary of them.
 """
 import pytest
 
-from openoutreach import wizard
-from openoutreach.config.models import SiteConfig
+from cybrreach import wizard
+from cybrreach.config.models import SiteConfig
 
 ANSWERS = dict(
     product_docs="A lead finder for small B2B teams.",

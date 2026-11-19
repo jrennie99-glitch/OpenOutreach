@@ -1,13 +1,13 @@
-"""The `openoutreach` console script — one install, one wizard, one command.
+"""The `cybrreach` console script — one install, one wizard, one command.
 
 The verbs, in the order a reader meets them:
 
-    openoutreach                   # onboard if needed, then find and send: the whole thing
-    openoutreach run [N]           # the same, said out loud
-    openoutreach init              # onboard only — both halves, one flow
-    openoutreach find 10 [emails]  # find that many more, print the campaign, exit
-    openoutreach send [N|all]      # mail what is already stored
-    openoutreach status [--json]   # what is configured, blocked and counted
+    cybrreach                   # onboard if needed, then find and send: the whole thing
+    cybrreach run [N]           # the same, said out loud
+    cybrreach init              # onboard only — both halves, one flow
+    cybrreach find 10 [emails]  # find that many more, print the campaign, exit
+    cybrreach send [N|all]      # mail what is already stored
+    cybrreach status [--json]   # what is configured, blocked and counted
 
 **This is an orchestrator, not a fork.** The finding is `openoutfind`'s and the sending is
 `openoutsend`'s, both installed as ordinary dependencies and both hosted here as Django
@@ -20,9 +20,9 @@ management commands. Each child still runs standalone from its own console scrip
 **A bare invocation is `run`.** The finder alone cannot default to a verb — `find` needs a
 goal number, and picking one for the operator spends their credits on a guess. `run` does
 not have that problem: it is onboarding, which has nothing to guess, followed by a bounded
-pass whose default goal is small and stated. So `uv tool install openoutreach &&
-openoutreach` is the whole first-run command, and the overview's job — answering *what can
-I do* — belongs to `openoutreach -h`.
+pass whose default goal is small and stated. So `uv tool install cybrreach &&
+cybrreach` is the whole first-run command, and the overview's job — answering *what can
+I do* — belongs to `cybrreach -h`.
 
 **`run` buys addresses, and that is not a flag anyone forgot.** The finder keeps spending
 opt-in because `find` is free work that a forgotten flag could quietly bill for. There is
@@ -31,7 +31,7 @@ its goal in the `emails` unit and says so before it starts: N leads carrying an 
 at most N credits, in the same unit as the invoice.
 
 Any command accepts `--db PATH` (or `--db=PATH`) to work against a SQLite file other than
-the default `~/.openoutreach/data/db.sqlite3`; the `OPENOUTREACH_DB` env var does the same.
+the default `~/.cybrreach/data/db.sqlite3`; the `CYBRREACH_DB` env var does the same.
 
 `manage.py` is a thin shim over this module, kept for work inside a checkout.
 """
@@ -46,18 +46,18 @@ import sys
 DEFAULT_GOAL = 5
 
 OVERVIEW = """\
-OpenOutreach — find B2B leads that fit, and email the ones that do.
+CybrReach — find B2B leads that fit, and email the ones that do.
 
-  openoutreach                  onboard if needed, then find and send
-  openoutreach run 5            ...with an explicit goal (≤5 email credits)
-  openoutreach init             onboard only — both halves, one flow
+  cybrreach                  onboard if needed, then find and send
+  cybrreach run 5            ...with an explicit goal (≤5 email credits)
+  cybrreach init             onboard only — both halves, one flow
 
-  openoutreach find 10          ten more qualified leads → CSV on stdout
-  openoutreach find 10 emails   ...with a verified work email (1 credit each)
-  openoutreach send             mail what is already stored
-  openoutreach status           what is configured, blocked and counted
+  cybrreach find 10          ten more qualified leads → CSV on stdout
+  cybrreach find 10 emails   ...with a verified work email (1 credit each)
+  cybrreach send             mail what is already stored
+  cybrreach status           what is configured, blocked and counted
 
-  openoutreach help <command>   details for one command
+  cybrreach help <command>   details for one command
 
 Django's own commands (migrate, createsuperuser) still work.
 """
@@ -86,7 +86,7 @@ def extract_db_path(argv):
         arg = argv[i]
         if arg == "--db":
             if i + 1 >= len(argv):
-                sys.exit("openoutreach: --db requires a path")
+                sys.exit("cybrreach: --db requires a path")
             db_path = argv[i + 1]
             i += 2
             continue
@@ -103,7 +103,7 @@ def main(argv=None):
     # Before Django imports either child. `settings` does this too; a path
     # that reaches a library first would be too late for the flags those
     # libraries read at import.
-    from openoutreach.privacy import install_env
+    from cybrreach.privacy import install_env
 
     install_env()
 
@@ -113,8 +113,8 @@ def main(argv=None):
         return
 
     if db_path:
-        os.environ["OPENOUTREACH_DB"] = db_path
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openoutreach.settings")
+        os.environ["CYBRREACH_DB"] = db_path
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cybrreach.settings")
 
     _hand_the_children_their_environment()
 
@@ -145,8 +145,8 @@ def _hand_the_children_their_environment() -> None:
 
     from django.db import DatabaseError
 
-    from openoutreach import wizard
-    from openoutreach.config.models import SiteConfig
+    from cybrreach import wizard
+    from cybrreach.config.models import SiteConfig
 
     try:
         config = SiteConfig.load()
@@ -189,9 +189,9 @@ def _init(rest: list[str]) -> int:
     """
     import argparse
 
-    from openoutreach import wizard
+    from cybrreach import wizard
 
-    parser = argparse.ArgumentParser(prog="openoutreach init", add_help=True)
+    parser = argparse.ArgumentParser(prog="cybrreach init", add_help=True)
     parser.add_argument("--product-docs", metavar="FILE",
                         help="File holding the product description (markdown).")
     parser.add_argument("--target", metavar="FILE",
@@ -226,7 +226,7 @@ def _run(rest: list[str]) -> int:
     from django.core.management import call_command
 
     from openoutfind.core.errors import OpenOutFindError
-    from openoutreach import wizard
+    from cybrreach import wizard
     from openoutsend.leads.ingest import ingest
 
     goal = _goal(rest)
@@ -256,7 +256,7 @@ def _goal(rest: list[str]) -> int:
     if not rest:
         return DEFAULT_GOAL
     if len(rest) > 1 or not rest[0].isdigit() or int(rest[0]) < 1:
-        sys.exit("openoutreach: run takes a number of leads, e.g. `openoutreach run 5`")
+        sys.exit("cybrreach: run takes a number of leads, e.g. `cybrreach run 5`")
     return int(rest[0])
 
 

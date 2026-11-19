@@ -7,7 +7,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./compose/openoutreach/Dockerfile
+      dockerfile: ./compose/cybrreach/Dockerfile
     restart: unless-stopped
     stdin_open: true
     tty: true

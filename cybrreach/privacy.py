@@ -6,7 +6,7 @@ and several libraries send telemetry unless told not to at startup. This
 module turns that off before either child is imported, and keeps the mailbox
 on TLS that checks the server's certificate.
 
-``OPENOUTREACH_ENABLE_HUB=1`` in the environment *before* the process starts
+``CYBRREACH_ENABLE_HUB=1`` in the environment *before* the process starts
 is the only way the contacts store is contacted. Nothing in the wizard sets it.
 """
 from __future__ import annotations
@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 # Read once, at process start, by ``install_runtime_guards``. A flag flipped
 # later does not reopen a process that already replaced the hub client.
-_HUB_FLAG = "OPENOUTREACH_ENABLE_HUB"
+_HUB_FLAG = "CYBRREACH_ENABLE_HUB"
+_LEGACY_HUB_FLAG = "OPENOUTREACH_ENABLE_HUB"  # compat alias, v0.x only
 
 _TRUE = {"1", "true", "yes", "on"}
 
@@ -93,8 +94,14 @@ _RESEND_OPEN_LOCK = threading.Lock()
 
 
 def hub_enabled() -> bool:
-    """Whether this process was started with the contacts store explicitly on."""
-    return os.environ.get(_HUB_FLAG, "").strip().lower() in _TRUE
+    """Whether this process was started with the contacts store explicitly on.
+
+    Reads the CybrReach name first, and the legacy OpenOutreach name as an
+    alias for one major version so an existing operator's environment keeps
+    working across the rename.
+    """
+    value = os.environ.get(_HUB_FLAG, os.environ.get(_LEGACY_HUB_FLAG, ""))
+    return value.strip().lower() in _TRUE
 
 
 def install_env() -> None:
@@ -151,9 +158,9 @@ def restrict_state_files(state_dir: Path, db_path: Path) -> None:
 
     A checkout's root is the state directory (it contains ``manage.py``) and
     is not chmodded — that would hide the working tree. ``data/`` and an
-    installed ``~/.openoutreach`` are.
+    installed ``~/.cybrreach`` are.
     """
-    home_state = Path.home() / ".openoutreach"
+    home_state = Path.home() / ".cybrreach"
     try:
         if state_dir.exists() and state_dir.resolve() == home_state.resolve():
             _chmod(state_dir, 0o700)
@@ -580,7 +587,7 @@ def _chmod_sqlite_on_connect() -> None:
         if name and name != ":memory:":
             _chmod_db(Path(name))
 
-    connection_created.connect(_on_connect, dispatch_uid="openoutreach.privacy.sqlite-mode")
+    connection_created.connect(_on_connect, dispatch_uid="cybrreach.privacy.sqlite-mode")
 
 
 def _chmod_db(path: Path) -> None:
@@ -588,7 +595,7 @@ def _chmod_db(path: Path) -> None:
         if candidate.is_file():
             _chmod(candidate, 0o600)
     parent = path.parent
-    home_state = Path.home() / ".openoutreach"
+    home_state = Path.home() / ".cybrreach"
     data_name = parent.name == "data"
     try:
         under_home = parent.resolve() == home_state.resolve() or home_state.resolve() in parent.resolve().parents

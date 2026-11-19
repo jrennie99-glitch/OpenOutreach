@@ -4,34 +4,34 @@
 
 - **Python env**: Always use `.venv/bin/python` (not system `python3`).
 - **Commits**: No `Co-Authored-By` lines. Single-line messages (no body).
-- **Dependencies**: Declared in `pyproject.toml`. **Both children are required dependencies and pinned exactly** — `openoutfind==` and `openoutsend==`. `pip install openoutreach` alone has to be the whole find-then-send flow, or the second install is the friction this package exists to remove. **Always bump the pin here after pushing a change to either child's `main`.** Both children auto-publish a new PyPI version on every green push, so the moment a fix lands there it exists as an installable release — check the new version (PyPI, or `git rev-list --count v<base>..HEAD` in the child, which is exactly the patch number CI derives), edit the pin, reinstall (`uv pip install -e ".[dev]"`), and rerun this repo's suite before calling the cross-repo change done. A stale pin here is a real install running old, unfixed child code even though the fix already shipped — do not treat the pin bump as a follow-up task.
-- **This repo holds no pipeline.** The finding is [OpenOutFind](https://github.com/eracle/OpenOutFind), the sending is [OpenOutSend](https://github.com/eracle/OpenOutSend), and both are installed packages here. **Do not add a pipeline model or a management command to this project.** If a change belongs to discovery, qualification, enrichment, the CRM, the outreach agent or the mailbox, it belongs in a child repo — land it there, release it, and bump the pin here. **The one exception is the one app that exists**: `openoutreach.config.SiteConfig`, the answers a person gave. The children read their configuration from the environment and remember none of it, so somebody has to remember what was typed, and it is not them.
-- **Nothing under `openoutreach/` may reimplement a child.** A duplicated fork of the finder lived here until it was deleted, and it had already started to diverge. What exists is the whole project: `settings.py` (the registry), `config/` (the one model), `wizard.py` (the questions, and the export into both children's variables), `__main__.py` (the verbs).
-- **`openoutreach` imports `openoutsend`, deliberately.** The old rule — *nothing under `openoutreach/` may import `openoutsend`* — was written to keep the pipe honest, and the pipe is kept honest a different way now: **both children still implement and test `outfind find --json | outsend` standalone**, and `openoutreach run` uses that same JSON Lines contract through a buffer rather than a privileged in-memory hand-off. See the `openoutreach-docs` cards `p1-e3-openoutreach-single-entrypoint` and `p1-e2-find-send-boundary-contract`.
-- **Each child must keep running standalone.** `uvx --from openoutfind outfind find 10` with `openoutreach` nowhere in the environment is an acceptance criterion, not a courtesy. A change here that requires a change in a child's *own* settings module is a design error.
+- **Dependencies**: Declared in `pyproject.toml`. **Both children are required dependencies and pinned exactly** — `openoutfind==` and `openoutsend==`. `pip install cybrreach` alone has to be the whole find-then-send flow, or the second install is the friction this package exists to remove. **Always bump the pin here after pushing a change to either child's `main`.** Both children auto-publish a new PyPI version on every green push, so the moment a fix lands there it exists as an installable release — check the new version (PyPI, or `git rev-list --count v<base>..HEAD` in the child, which is exactly the patch number CI derives), edit the pin, reinstall (`uv pip install -e ".[dev]"`), and rerun this repo's suite before calling the cross-repo change done. A stale pin here is a real install running old, unfixed child code even though the fix already shipped — do not treat the pin bump as a follow-up task.
+- **This repo holds no pipeline.** The finding is [OpenOutFind](https://github.com/eracle/OpenOutFind), the sending is [OpenOutSend](https://github.com/eracle/OpenOutSend), and both are installed packages here. **Do not add a pipeline model or a management command to this project.** If a change belongs to discovery, qualification, enrichment, the CRM, the outreach agent or the mailbox, it belongs in a child repo — land it there, release it, and bump the pin here. **The one exception is the one app that exists**: `cybrreach.config.SiteConfig`, the answers a person gave. The children read their configuration from the environment and remember none of it, so somebody has to remember what was typed, and it is not them.
+- **Nothing under `cybrreach/` may reimplement a child.** A duplicated fork of the finder lived here until it was deleted, and it had already started to diverge. What exists is the whole project: `settings.py` (the registry), `config/` (the one model), `wizard.py` (the questions, and the export into both children's variables), `__main__.py` (the verbs).
+- **`cybrreach` imports `openoutsend`, deliberately.** The old rule — *nothing under `cybrreach/` may import `openoutsend`* — was written to keep the pipe honest, and the pipe is kept honest a different way now: **both children still implement and test `outfind find --json | outsend` standalone**, and `cybrreach run` uses that same JSON Lines contract through a buffer rather than a privileged in-memory hand-off. See the `cybrreach-docs` cards `p1-e3-cybrreach-single-entrypoint` and `p1-e2-find-send-boundary-contract`.
+- **Each child must keep running standalone.** `uvx --from openoutfind outfind find 10` with `cybrreach` nowhere in the environment is an acceptance criterion, not a courtesy. A change here that requires a change in a child's *own* settings module is a design error.
 - **There is no daemon and no web surface.** No URLconf, no Django Admin, no sessions, no templates. `run` is a bounded pass, not a loop. Do not reintroduce an unbounded process or a file the tool writes for the operator; both were tried and both were workarounds for a process that never ended.
 - **Docs sync**: the CLI's contract has a second reader — `skills/find-leads/SKILL.md`, the Claude Code plugin shipped from this repo (`.claude-plugin/plugin.json` + `marketplace.json`). It restates the verbs, which of them can spend, the export columns and the `ErrorType` vocabulary, so a change to any of those has to land there too. `claude plugin validate .claude-plugin/plugin.json` checks the manifests.
 - **No memory**: Never use the auto-memory system (no MEMORY.md, no memory files). Persistent context belongs in this file.
 - **No API backward compat**: no external users yet — rename, delete and rewrite freely; no shims or re-export modules.
-- **Migrations are almost entirely the children's.** This project owns the one migration graph *over* them and writes only its own config app's (`openoutreach/config/migrations/`). A model change in either child means bumping its pin here and re-running `migrate`.
+- **Migrations are almost entirely the children's.** This project owns the one migration graph *over* them and writes only its own config app's (`cybrreach/config/migrations/`). A model change in either child means bumping its pin here and re-running `migrate`.
 
 ## Project Overview
 
-**OpenOutreach is an orchestrator.** It installs `openoutfind` and `openoutsend`, hosts both
+**CybrReach is an orchestrator.** It installs `openoutfind` and `openoutsend`, hosts both
 children's Django apps in **one app registry, one SQLite file, one migration graph, one process**,
 and puts one wizard and one command in front of them.
 
 The problem it solves is activation cost, not capability: getting from *"I want leads and I want
 them sent"* to a working pipeline used to take two installs, two onboarding wizards and two env
-files. It takes `uv tool install openoutreach && openoutreach` now.
+files. It takes `uv tool install cybrreach && cybrreach` now.
 
 ```
-openoutreach                  # onboard if needed, then find and send
-openoutreach run 5            # ...with an explicit goal
-openoutreach init             # onboard only — both halves, one flow
-openoutreach find 10 [emails] # the finder's own verb, arguments and error contract intact
-openoutreach send [N|all]     # the sender's own verb
-openoutreach status [--json]  # the finder's own verb
+cybrreach                  # onboard if needed, then find and send
+cybrreach run 5            # ...with an explicit goal
+cybrreach init             # onboard only — both halves, one flow
+cybrreach find 10 [emails] # the finder's own verb, arguments and error contract intact
+cybrreach send [N|all]     # the sender's own verb
+cybrreach status [--json]  # the finder's own verb
 ```
 
 ## Architecture
@@ -86,7 +86,7 @@ Three modules and one app, and nothing else.
   **Everything is asked on stderr, the caret included** — `input`'s own prompt argument writes to
   stdout, which carries the CSV.
 - **`__main__.py` — the verbs.** `--db PATH` comes off argv before Django's per-command parsing and
-  sets `OPENOUTREACH_DB`. **A bare invocation is `run`** — the finder alone cannot default to a verb
+  sets `CYBRREACH_DB`. **A bare invocation is `run`** — the finder alone cannot default to a verb
   because `find` needs a goal number and picking one spends the operator's credits on a guess, but
   `run` is onboarding (nothing to guess) plus a bounded pass with a small stated goal. The overview
   therefore belongs to `-h`.
@@ -122,11 +122,11 @@ Three modules and one app, and nothing else.
 
 ```bash
 # Installed (what an operator runs)
-uv tool install openoutreach && openoutreach
-openoutreach run 5
-openoutreach find 10 emails > leads.csv
-openoutreach send 5
-openoutreach status --json
+uv tool install cybrreach && cybrreach
+cybrreach run 5
+cybrreach find 10 emails > leads.csv
+cybrreach send 5
+cybrreach status --json
 
 # Local dev
 make setup                      # install -e ".[dev]" + migrate

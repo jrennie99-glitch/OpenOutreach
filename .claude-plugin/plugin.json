@@ -1,12 +1,12 @@
 {
-  "name": "openoutreach",
-  "description": "Find qualified B2B leads from inside Claude Code — drives the OpenOutreach CLI, reads the CSV it prints, and hands the rows to whatever you send with.",
+  "name": "cybrreach",
+  "description": "Find qualified B2B leads from inside Claude Code \u2014 drives the CybrReach CLI, reads the CSV it prints, and hands the rows to whatever you send with.",
   "version": "0.1.0",
   "author": {
-    "name": "OpenOutreach",
-    "email": "hello@openoutreach.app"
+    "name": "AR Dynamics",
+    "email": "hello@ardynamicsinc.com"
   },
-  "homepage": "https://openoutreach.app",
+  "homepage": "https://ardynamicsinc.com",
   "repository": "https://github.com/eracle/OpenOutreach",
   "license": "Apache-2.0",
   "keywords": [
