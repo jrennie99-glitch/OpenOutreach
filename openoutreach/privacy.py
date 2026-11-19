@@ -11,6 +11,7 @@ is the only way the contacts store is contacted. Nothing in the wizard sets it.
 """
 from __future__ import annotations
 
+import logging
 import os
 import re
 import socket
@@ -19,6 +20,8 @@ import threading
 import urllib.request
 from pathlib import Path
 from urllib.parse import urlparse
+
+logger = logging.getLogger(__name__)
 
 # Read once, at process start, by ``install_runtime_guards``. A flag flipped
 # later does not reopen a process that already replaced the hub client.
@@ -445,52 +448,97 @@ class _ResendRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def _guard_clear_opt_outs() -> None:
-    import openoutsend.emails.steps.reply as reply_mod
-    import openoutsend.send_pass as send_pass
+    """Honour a clear opt-out before the model answers the thread.
 
-    if not getattr(send_pass._answer_replies, "_openoutreach", False):
-        original_answers = send_pass._answer_replies
+    openoutsend 0.1.88 moved reply handling into ``emails.project``: an
+    inbound message is classified, and a word-of-its-own "stop" (or the
+    unsubscribe alias) suppresses the address there. Two gaps remain, and
+    they are the ones this guard was always about — not the old module map:
 
-        def _answer_replies(result, agent_draft=send_pass.OFF):
-            _suppress_clear_opt_outs()
-            return original_answers(result, agent_draft)
+    * an inbound row that classified as ``HUMAN_REPLY`` but *reads* as only
+      an opt-out (different wording, "unsubscribe please") reaches the
+      conversation turn and the model writes to it;
+    * a draft held for an agent (``PendingDraft``) is sent in the thread
+      even if an opt-out landed while it waited — the agent path is exempt
+      from send guards by design.
 
-        _answer_replies._openoutreach = True
-        send_pass._answer_replies = _answer_replies
+    The hooks therefore fire at the two decision points that survive sender
+    refactors: ``project.project`` (per message, before its actions) and
+    ``send_pass._converse`` (the conversation turn, before any reply or
+    draft is answered). Both first re-run our own exact-line check, so
+    "stop by the office" is never an opt-out.
 
-    if not getattr(reply_mod.answer_reply, "_openoutreach", False):
-        original_reply = reply_mod.answer_reply
+    Kept import-tolerant: when a future pin moves a module again, the guard
+    logs and defers rather than crashing the whole app at ``ready()``.
+    """
+    try:
+        from openoutsend.emails import project as project_mod
+        from openoutsend import send_pass
+    except ImportError:
+        logger.warning(
+            "opt-out guard deferred: openoutsend layout changed; "
+            "upstream suppression in emails.project still applies"
+        )
+        return
 
-        def answer_reply(deal):
-            if is_clear_opt_out(_latest_inbound_body(deal)):
-                return reply_mod.honour_opt_out(deal)
-            return original_reply(deal)
+    if not getattr(project_mod.project, "_openoutreach", False):
+        original_project = project_mod.project
 
-        answer_reply._openoutreach = True
-        reply_mod.answer_reply = answer_reply
+        def project(message):
+            if (_is_inbound(message)
+                    and is_clear_opt_out(getattr(message, "body_text", "") or "")):
+                _suppress_message_opt_out(message)
+            return original_project(message)
 
-    if not getattr(reply_mod.send_drafted_reply, "_openoutreach", False):
-        original_draft = reply_mod.send_drafted_reply
+        project._openoutreach = True
+        project_mod.project = project
 
-        def send_drafted_reply(deal, body: str):
-            if is_clear_opt_out(_latest_inbound_body(deal)):
-                return reply_mod.honour_opt_out(deal)
-            return original_draft(deal, body)
+    converse = getattr(send_pass, "_converse", None)
+    if converse is not None and not getattr(converse, "_openoutreach", False):
+        def _preempt():
+            try:
+                _suppress_conversations_opt_outs()
+            except Exception:  # never let the sweep break a sending pass
+                logger.exception("opt-out sweep failed; continuing pass")
 
-        send_drafted_reply._openoutreach = True
-        reply_mod.send_drafted_reply = send_drafted_reply
+        def _converse(result, agent_draft):
+            _preempt()
+            return converse(result, agent_draft)
+
+        _converse._openoutreach = True
+        send_pass._converse = _converse
 
 
-def _suppress_clear_opt_outs() -> None:
+def _is_inbound(message) -> bool:
+    from openoutsend.emails.models import Direction
+
+    return getattr(message, "direction", None) == Direction.INBOUND
+
+
+def _suppress_message_opt_out(message) -> None:
+    """Suppress the sender of an inbound row whose body is only an opt-out."""
     from openoutsend.leads.suppression import suppress_email
-    from openoutsend.planner import unanswered_replies
 
-    for deal in list(unanswered_replies()):
-        if is_clear_opt_out(_latest_inbound_body(deal)):
-            suppress_email(
-                deal.lead.email,
-                reason="clear opt-out in the reply, honoured before the model",
-            )
+    address = getattr(message, "from_address", "") or ""
+    if address:
+        suppress_email(address, reason="clear opt-out reply, honoured before the model")
+
+
+def _suppress_conversations_opt_outs() -> None:
+    """Suppress every conversing lead whose latest inbound message is only an opt-out.
+
+    Runs before the conversation turn, so a held draft or model answer never
+    reaches somebody who asked out in the meantime.
+    """
+    from openoutsend.planner import conversations_waiting
+
+    from openoutsend.leads.suppression import suppress_email
+
+    for deal in list(conversations_waiting()):
+        body = _latest_inbound_body(deal)
+        address = getattr(getattr(deal, "lead", None), "email", "") or ""
+        if address and is_clear_opt_out(body):
+            suppress_email(address, reason="clear opt-out in the reply, honoured before the model")
 
 
 def _latest_inbound_body(deal) -> str:
