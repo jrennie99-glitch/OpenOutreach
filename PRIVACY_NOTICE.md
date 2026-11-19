@@ -1,14 +1,14 @@
-# Privacy Notice — OpenOutreach Contacts Store
+# Privacy Notice — CybrReach Contacts Store
 
-> **This build does not contact `hub.openoutreach.app`.** The text below describes the store the upstream project operates. OpenOutreach as run by the `openoutreach` command does not register an install, contribute profiles, or resolve emails against that store unless the process is started with `OPENOUTREACH_ENABLE_HUB=1`. What this program does contact is listed in [PRIVACY/NETWORK.md](PRIVACY/NETWORK.md).
+> **This build does not contact `hub.openoutreach.app`.** The text below describes the store the upstream project operates. CybrReach as run by the `cybrreach` command does not register an install, contribute profiles, or resolve emails against that store unless the process is started with `CYBRREACH_ENABLE_HUB=1`. What this program does contact is listed in [PRIVACY/NETWORK.md](PRIVACY/NETWORK.md).
 
 _This notice explains how the central contacts store operated at `hub.openoutreach.app` collects, uses, and discloses personal data. It is published for the people whose work contact details may appear in the store and for the operators who contribute to and read from it._
 
 ## Who operates the store
 
-The store is operated by the maintainer of the open-source project **OpenOutreach**. It holds two kinds of record pooled across the OpenOutreach operator network: **work email addresses**, so a contact one operator has already resolved can be served to another, lowering each operator's email-finder spend as coverage grows; and **professional profiles** returned by operators' prospect searches, so the pool of business contacts does not depend on any one data provider staying available.
+The store is operated by the maintainer of the open-source project **CybrReach**. It holds two kinds of record pooled across the CybrReach operator network: **work email addresses**, so a contact one operator has already resolved can be served to another, lowering each operator's email-finder spend as coverage grows; and **professional profiles** returned by operators' prospect searches, so the pool of business contacts does not depend on any one data provider staying available.
 
-Throughout this notice, an **operator** is a person running a self-hosted OpenOutreach instance that contributes to and reads from the store.
+Throughout this notice, an **operator** is a person running a self-hosted CybrReach instance that contributes to and reads from the store.
 
 ## What data is in the store
 
@@ -40,7 +40,7 @@ Any person located in the **EU/EEA, the UK, or Switzerland** — or whose locati
 
 ## How data is collected
 
-Data reaches the store from OpenOutreach operators, at two moments:
+Data reaches the store from CybrReach operators, at two moments:
 
 - **Email records** arrive **after an operator's paid email-finder lookup returns a verified work email.**
 - **Profile records** arrive **whenever an operator's prospect search returns a page of results.** The source of those results is the operator's own account with the B2B data provider **BetterContact** (its Lead Finder search), which compiles publicly available professional information.
@@ -73,7 +73,7 @@ Email records persist while they remain useful for resolution and are refreshed 
 
 ## Contact
 
-Questions, complaints, or data-subject requests: open an issue on the OpenOutreach repository or contact the maintainer at the address published there. If your country has a data-protection regulator (for example the AEPD in Spain, the ICO in the UK, or another EU/EEA supervisory authority), you may also lodge a complaint directly with that regulator.
+Questions, complaints, or data-subject requests: open an issue on the CybrReach repository or contact the maintainer at the address published there. If your country has a data-protection regulator (for example the AEPD in Spain, the ICO in the UK, or another EU/EEA supervisory authority), you may also lodge a complaint directly with that regulator.
 
 ---
 

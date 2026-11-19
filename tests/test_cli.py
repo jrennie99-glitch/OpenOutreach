@@ -1,31 +1,31 @@
 """What the entry point decides before either child is asked anything."""
 import pytest
 
-from openoutreach import __main__ as cli
+from cybrreach import __main__ as cli
 
 
 def test_the_db_flag_comes_off_before_django_sees_it():
-    assert cli.extract_db_path(["openoutreach", "find", "10", "--db", "/tmp/x"]) == (
-        ["openoutreach", "find", "10"], "/tmp/x")
-    assert cli.extract_db_path(["openoutreach", "--db=/tmp/x", "status"]) == (
-        ["openoutreach", "status"], "/tmp/x")
-    assert cli.extract_db_path(["openoutreach", "status"]) == (["openoutreach", "status"], None)
+    assert cli.extract_db_path(["cybrreach", "find", "10", "--db", "/tmp/x"]) == (
+        ["cybrreach", "find", "10"], "/tmp/x")
+    assert cli.extract_db_path(["cybrreach", "--db=/tmp/x", "status"]) == (
+        ["cybrreach", "status"], "/tmp/x")
+    assert cli.extract_db_path(["cybrreach", "status"]) == (["cybrreach", "status"], None)
 
 
 def test_only_an_explicit_help_asks_for_the_overview():
-    assert cli.wants_the_overview(["openoutreach", "-h"])
-    assert cli.wants_the_overview(["openoutreach", "help"])
-    assert not cli.wants_the_overview(["openoutreach"])
-    assert not cli.wants_the_overview(["openoutreach", "help", "find"])
+    assert cli.wants_the_overview(["cybrreach", "-h"])
+    assert cli.wants_the_overview(["cybrreach", "help"])
+    assert not cli.wants_the_overview(["cybrreach"])
+    assert not cli.wants_the_overview(["cybrreach", "help", "find"])
 
 
 def test_a_bare_invocation_is_run(db, monkeypatch):
-    """The whole first-run command is `openoutreach`, with no verb to learn first."""
+    """The whole first-run command is `cybrreach`, with no verb to learn first."""
     asked = []
     monkeypatch.setattr(cli, "_run", lambda rest: asked.append(rest) or 0)
 
     with pytest.raises(SystemExit) as exit:
-        cli.main(["openoutreach"])
+        cli.main(["cybrreach"])
 
     assert exit.value.code == 0
     assert asked == [[]]

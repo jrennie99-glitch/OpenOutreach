@@ -29,12 +29,15 @@ import os
 import sys
 from pathlib import Path
 
-from openoutreach.config.models import FINDER_ENV, SENDER_ENV, SiteConfig
+from cybrreach.config.models import FINDER_ENV, SENDER_ENV, SiteConfig
 
 BETTERCONTACT_SIGNUP_URL = "https://bettercontact.rocks?fpr=openoutreach"
+# NB: the referral tag stays upstream's deliberately. Silently swapping it to
+# ours would pocket credit for the original author's work; it changes when AR
+# Dynamics signs its own BetterContact agreement (see docs/NOTICE).
 
 _INTRO = """
-  Welcome to OpenOutreach — it finds B2B leads that fit what you sell, writes down why
+  Welcome to CybrReach — it finds B2B leads that fit what you sell, writes down why
   each one fits, and emails the ones you want it to.
 
   Setup takes a few minutes and is asked once. Have three things ready:
@@ -83,7 +86,7 @@ def apply_to_environment(config: SiteConfig) -> None:
     # A token already in the environment would authenticate the upload even
     # though `export` withheld the stored one. Drop it unless the store was
     # explicitly turned on for this process.
-    from openoutreach.privacy import silence_hub_credentials
+    from cybrreach.privacy import silence_hub_credentials
 
     silence_hub_credentials()
 

@@ -1,13 +1,13 @@
 ---
 name: find-leads
-description: Find qualified B2B leads with OpenOutreach — run `openoutreach find N [emails]`, read the CSV it prints on stdout, and hand the rows to whatever sends. Use when the user wants leads, prospects, an ICP-matched contact list, or asks what a campaign already has. Also covers first-run setup (`openoutreach init`), `openoutreach status`, when a lookup costs money, and the verbs that actually send mail (`send`, `run`) — which you never run unasked.
+description: Find qualified B2B leads with CybrReach — run `cybrreach find N [emails]`, read the CSV it prints on stdout, and hand the rows to whatever sends. Use when the user wants leads, prospects, an ICP-matched contact list, or asks what a campaign already has. Also covers first-run setup (`cybrreach init`), `cybrreach status`, when a lookup costs money, and the verbs that actually send mail (`send`, `run`) — which you never run unasked.
 user-invocable: true
 argument-hint: [N] [emails]
 ---
 
-# Finding leads with OpenOutreach
+# Finding leads with CybrReach
 
-OpenOutreach is a self-hosted CLI lead finder. You describe a product and a target market once;
+CybrReach is a self-hosted CLI lead finder. You describe a product and a target market once;
 each run discovers candidates from a licensed data source, has an LLM judge each one against that
 ICP, **writes down why**, and prints every lead it has as CSV on stdout.
 
@@ -23,12 +23,12 @@ a CSV for whatever they already send with.
 ## Is it installed?
 
 ```bash
-openoutreach status          # human summary
-openoutreach status --json   # the same document, for you to parse
+cybrreach status          # human summary
+cybrreach status --json   # the same document, for you to parse
 ```
 
-If the command is missing, run it through `uvx` instead — `uvx openoutreach ...` — or install it
-with `pip install openoutreach`. Inside a checkout of the repo, `python manage.py <verb>` is the
+If the command is missing, run it through `uvx` instead — `uvx cybrreach ...` — or install it
+with `pip install cybrreach`. Inside a checkout of the repo, `python manage.py <verb>` is the
 same entry point.
 
 `status` never blocks and never spends. It answers `onboarding` (complete or which
@@ -39,7 +39,7 @@ finding half; the sending half reports itself when `send` runs.
 ## Setup, if `status` says onboarding is incomplete
 
 ```bash
-openoutreach init            # interactive wizard on a TTY; environment otherwise
+cybrreach init            # interactive wizard on a TTY; environment otherwise
 ```
 
 `init` creates the database, asks for whatever this install has not been told, and stops **before
@@ -65,7 +65,7 @@ The product description and target market are pages of prose, so pass them as fi
 shell-quoted strings — quoting a markdown paragraph on a command line corrupts it quietly:
 
 ```bash
-openoutreach init --product-docs product.md --target target.md
+cybrreach init --product-docs product.md --target target.md
 ```
 
 **Never guess the mailbox credentials** — ask the user for them.
@@ -78,10 +78,10 @@ cheaply, before any work.
 ## The work verb you reach for
 
 ```bash
-openoutreach find 10                 # ten more qualified leads — free, and cannot spend
-openoutreach find 10 --emails        # ...and buy an address for whatever cleared the gate
-openoutreach find 10 emails          # ten more *carrying* a verified email (≤10 credits)
-openoutreach find 0                  # no work at all — just print what is already there
+cybrreach find 10                 # ten more qualified leads — free, and cannot spend
+cybrreach find 10 --emails        # ...and buy an address for whatever cleared the gate
+cybrreach find 10 emails          # ten more *carrying* a verified email (≤10 credits)
+cybrreach find 0                  # no work at all — just print what is already there
 ```
 
 Three things about `N` that are easy to get wrong:
@@ -117,7 +117,7 @@ exports — the row carries the person, the company and the reason with a blank 
 | `--batch` | Hold everything until the job ends, then print every lead once — the old, pre-streaming shape. Output is progressive *by default* now (see below); reach for `--batch` only if whatever you are piping into cannot handle a stream — a strict single-document JSON parser, for instance. Not something you need for reading into your own context — that is what `--new` is for. |
 | `--debug` | Show the discovery walk's reasoning on stderr. For diagnosing a run that finds nothing. |
 | `--open` | Opens each new lead's profile in a browser. **Never pass this** — it is for a human at a terminal, and it errors out headless. |
-| `--db PATH` | Work against a SQLite file other than `~/.openoutreach/data/db.sqlite3` (same as `OPENOUTREACH_DB`). Accepted by every verb. |
+| `--db PATH` | Work against a SQLite file other than `~/.cybrreach/data/db.sqlite3` (same as `CYBRREACH_DB`). Accepted by every verb. |
 | `--agent-qualify` | Opt out of `AI_MODEL` for the qualify step — see *Answering qualify yourself* below. |
 
 A run can take a while: each lead is an LLM call, and paid lookups are polled. Give it a generous
@@ -129,10 +129,10 @@ qualified is lost.
 If you (the calling agent) are already reasoning about these leads in this conversation,
 `OPENOUTFIND_LLM_API_KEY` is a second, redundant LLM bill for a verdict you can write yourself. Add
 `--agent-qualify` and the run stops at the first candidate needing one instead of calling `AI_MODEL`
-— and in this mode `openoutreach status`/`find` never require a model key at all:
+— and in this mode `cybrreach status`/`find` never require a model key at all:
 
 ```bash
-openoutreach find 10 --agent-qualify --json
+cybrreach find 10 --agent-qualify --json
 ```
 
 It runs discovery exactly as normal — free either way — and exits non-zero with `qualify_pending`,
@@ -143,8 +143,8 @@ way you would judge anything else in this conversation, then re-run the **same c
 verdict attached:
 
 ```bash
-openoutreach find 10 --agent-qualify --verdict fit --reason "Series B security infra buyer, matches the ICP on team size and stack."
-openoutreach find 10 --agent-qualify --verdict no-fit --reason "Consumer app, not B2B — outside the target market."
+cybrreach find 10 --agent-qualify --verdict fit --reason "Series B security infra buyer, matches the ICP on team size and stack."
+cybrreach find 10 --agent-qualify --verdict no-fit --reason "Consumer app, not B2B — outside the target market."
 ```
 
 This resumes from exactly that candidate — no lead id to track, since at most one is ever pending —
@@ -171,7 +171,7 @@ right default for a run nobody is driving turn-by-turn.
 redirection correct:
 
 ```bash
-openoutreach find 10 > leads.csv
+cybrreach find 10 > leads.csv
 ```
 
 **stdout carries every lead in the store, not just this run's rows.** The newest file supersedes every
@@ -188,7 +188,7 @@ Columns, in this order:
 email, first_name, last_name, company, title, website, linkedin_url, reason, lead_id, qualified_at
 ```
 
-- The names are **the importers'**, not OpenOutreach's: Instantly and Smartlead read
+- The names are **the importers'**, not CybrReach's: Instantly and Smartlead read
   `email`/`first_name`/`last_name` and recognise `company`/`title`/`website`/`linkedin_url`, so the
   file imports without column mapping. Everything else, `reason` included, arrives as a custom
   variable. **Do not rename these columns** when handing the file on.
@@ -220,8 +220,8 @@ qualifier judged on, which is what a sender writes a message from. The run's own
 JSON object on stderr:
 
 ```bash
-openoutreach find 10 --json > leads.jsonl 2> run.json
-openoutreach find 10 --json | jq -r '.email'          # the records
+cybrreach find 10 --json > leads.jsonl 2> run.json
+cybrreach find 10 --json | jq -r '.email'          # the records
 ```
 
 One record, two serialisations: the JSON is the whole thing, the CSV is the importer-safe
@@ -243,8 +243,8 @@ is a stable string worth branching on:
 | type | What it means | What to do |
 |------|---------------|-----------|
 | `goal_unreached` | Ran, produced fewer than asked. The rows are on stdout. | Read the message: a drained index is a dead end, addresses on order are a reason to run again later. |
-| `not_initialized` | No pipeline at this database yet. | `openoutreach init` |
-| `onboarding_incomplete` | Missing configuration and no TTY to ask. | `openoutreach status` names the variables. |
+| `not_initialized` | No pipeline at this database yet. | `cybrreach init` |
+| `onboarding_incomplete` | Missing configuration and no TTY to ask. | `cybrreach status` names the variables. |
 | `no_credential` | No BetterContact key. | Configure one; discovery needs it too, and the free tier has 40 credits. |
 | `provider_auth` | The key was rejected. | Do not retry; the key is wrong. |
 | `provider_out_of_credits` | Credits exhausted. | Free `find N` still works; addresses do not. |
@@ -271,9 +271,9 @@ contacted twice.
 ## The verbs that send mail
 
 ```bash
-openoutreach send                    # one pass: open whatever the guards allow right now
-openoutreach send 5                  # keep going until five conversations are open
-openoutreach run 5                   # find five leads carrying an address, then send
+cybrreach send                    # one pass: open whatever the guards allow right now
+cybrreach send 5                  # keep going until five conversations are open
+cybrreach run 5                   # find five leads carrying an address, then send
 ```
 
 **These put real mail in strangers' inboxes, signed with the user's name, from the user's mailbox.**
@@ -303,7 +303,7 @@ The sending half has the same opt-out `--agent-qualify` does, one step later: `-
 `OUTSEND_LLM_API_KEY`, and drops that key out of what `send` requires entirely:
 
 ```bash
-openoutreach send --agent-draft
+cybrreach send --agent-draft
 ```
 
 It exits non-zero with `draft_pending`. Under `--json` the error object carries the deal's
@@ -312,12 +312,12 @@ for a later step, the thread's `subject`. Write what the prompt asks, then re-ru
 subject and body for an opener, a body alone for a later step, which goes in the opener's thread:
 
 ```bash
-openoutreach send --agent-draft --subject "Quick one" --body "Saw you're hiring for platform roles..."
-openoutreach send --agent-draft --body "One more thought on the list..."
+cybrreach send --agent-draft --subject "Quick one" --body "Saw you're hiring for platform roles..."
+cybrreach send --agent-draft --body "One more thought on the list..."
 ```
 
 This resumes the same deal and sends it once a mailbox is free — an answer given while every box is
-busy is kept, not thrown away, so a later bare `openoutreach send --agent-draft` picks it back up
+busy is kept, not thrown away, so a later bare `cybrreach send --agent-draft` picks it back up
 without repeating the text. A deal stopped or replied to meanwhile is dropped, not written to. No count yet: it is one pass at a time. **Still never run this unasked**
 — it is `send`, and everything in *The verbs that send mail* above about consent applies unchanged.
 

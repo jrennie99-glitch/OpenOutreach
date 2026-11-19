@@ -35,7 +35,7 @@ def test_one_database_holds_the_config_and_both_pipelines(db):
     from openoutfind.crm.models import Lead
     from openoutsend.emails.models import Mailbox
 
-    from openoutreach.config.models import SiteConfig
+    from cybrreach.config.models import SiteConfig
 
     tables = connection.introspection.table_names()
     assert SiteConfig._meta.db_table in tables

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Django management entrypoint for work inside a checkout.
 
-The real entry point is the `openoutreach` console script
-(`openoutreach/__main__.py`); this shim exists so `python manage.py <verb>`
+The real entry point is the `cybrreach` console script
+(`cybrreach/__main__.py`); this shim exists so `python manage.py <verb>`
 keeps working without an install.
 """
 import sys
@@ -10,7 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from openoutreach.__main__ import main  # noqa: E402
+from cybrreach.__main__ import main  # noqa: E402
 
 if __name__ == "__main__":
     main()

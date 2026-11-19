@@ -1,0 +1,22 @@
+CybrReach
+Copyright 2026 AR Dynamics Inc.
+
+This product includes software developed by the OpenOutreach project
+(https://github.com/eracle/OpenOutreach), Copyright (c) Antonio Ercole De
+Luca, licensed under the Apache License, Version 2.0.
+
+Modifications by AR Dynamics Inc., including but not limited to:
+  * The privacy architecture in cybrreach/privacy.py: the central contacts
+    store (hub.openoutreach.app) is disabled by default — its client calls
+    are replaced with no-ops, its hostname is refused at name resolution,
+    telemetry environment flags are set off, and mailbox TLS is forced to
+    verify certificates. Opt-in re-enablement: CYBRREACH_ENABLE_HUB=1.
+  * Opt-out guards re-hooked to the 0.1.88 sender layout so a clear opt-out
+    is honoured before the model answers, with CI coverage for refactors.
+  * The CybrReach distribution name, CLI, packaging, and documentation.
+
+The unmodified upstream source remains available from the OpenOutreach
+project. Trademarks of the OpenOutreach project belong to their owner;
+"CybrReach" is a separate name and no endorsement is implied.
+
+For the full licence text see LICENCE.md (Apache-2.0).

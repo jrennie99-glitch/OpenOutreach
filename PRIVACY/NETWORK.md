@@ -1,12 +1,12 @@
 # Network endpoints
 
-What the `openoutreach` process contacts, and what it does not. This is the
-runtime of the installed command (`openoutreach`, `python manage.py`), not
+What the `cybrreach` process contacts, and what it does not. This is the
+runtime of the installed command (`cybrreach`, `python manage.py`), not
 the upstream website and not a standalone `outfind` / `outsend` process.
 Those two still contain the upstream contacts-store client; the guard below
 is installed by this package when its settings load.
 
-Silent telemetry is turned off in code at startup (`openoutreach/privacy.py`),
+Silent telemetry is turned off in code at startup (`cybrreach/privacy.py`),
 before either child is imported. A variable you export yourself is left
 alone.
 
@@ -14,7 +14,7 @@ alone.
 
 | Endpoint | What it would have sent | When |
 | --- | --- | --- |
-| `https://hub.openoutreach.app` (`/api/v2/register/`, `/contribute/`, `/profiles/`, `/companies/`, `/resolve/`) | Operator email and build id on register. After a paid email lookup: profile URL, country, work email. On every discovery page, for an operator outside the EEA/UK/CH: profile URL, country, name, headline, title, seniority, industry, region, employer name and domain, and a locally computed embedding. Not the mailbox password. | **Not called.** The client functions are replaced with no-ops, a stored token is not exported, and the hostname is refused at name resolution. Set `OPENOUTREACH_ENABLE_HUB=1` before the process starts to turn this back on. The wizard never sets it. |
+| `https://hub.openoutreach.app` (`/api/v2/register/`, `/contribute/`, `/profiles/`, `/companies/`, `/resolve/`) | Operator email and build id on register. After a paid email lookup: profile URL, country, work email. On every discovery page, for an operator outside the EEA/UK/CH: profile URL, country, name, headline, title, seniority, industry, region, employer name and domain, and a locally computed embedding. Not the mailbox password. | **Not called.** The client functions are replaced with no-ops, a stored token is not exported, and the hostname is refused at name resolution. Set `CYBRREACH_ENABLE_HUB=1` before the process starts to turn this back on. The wizard never sets it. |
 
 ## User-configured, and only when that step runs
 
@@ -38,7 +38,7 @@ does not call Apollo; BetterContact is the only finder it ships.
 
 | URL | When |
 | --- | --- |
-| `https://bettercontact.rocks?fpr=openoutreach` | Printed by the wizard as a signup link. The process does not request it. |
+| `https://bettercontact.rocks?fpr=openoutreach` | Printed by the wizard as a signup link (upstream's referral tag, kept deliberately). The process does not request it. |
 | `https://openoutreach.app/go/email-finder` | Returned in `status` as the finder's signup URL string. The process does not request it. |
 
 ## Local only
@@ -46,8 +46,8 @@ does not call Apollo; BetterContact is the only finder it ships.
 | Item | What happens |
 | --- | --- |
 | `OPENOUTFIND_NEWSLETTER` | Stored on the config row if you export `true`. Onboarding does not set it and does not ask. The pinned finder does not read it, and this process does not send a subscription request. |
-| `Sent with OpenOutreach` | A fixed line at the end of each message. No URL, no tracking pixel, no install id. |
-| SQLite database | API keys and the mailbox password are stored in plaintext in `data/db.sqlite3` (or `OPENOUTREACH_DB`). The file is mode `0600`. `data/` and an installed `~/.openoutreach` are mode `0700`. |
+| `Sent with CybrReach` | A fixed line at the end of each message. No URL, no tracking pixel, no install id. |
+| SQLite database | API keys and the mailbox password are stored in plaintext in `data/db.sqlite3` (or `CYBRREACH_DB`). The file is mode `0600`. `data/` and an installed `~/.cybrreach` are mode `0700`. |
 
 ## Disabled telemetry
 
@@ -64,7 +64,7 @@ refused at name resolution when the flag that would enable them is off:
 | `OTEL_SDK_DISABLED=true` and `OTEL_*_EXPORTER=none` | An OpenTelemetry exporter. The install has the API package, not an exporter. |
 | `ANTHROPIC_OPEN_TELEMETRY=false`, `ANTHROPIC_OPEN_TELEMETRY_PROPAGATION=false` | The Anthropic SDK's own spans, which default to on and would attach to a collector if you added one. |
 | `SCARF_NO_ANALYTICS=true`, `POSTHOG_DISABLED=1` | Scarf and PostHog defaults. PostHog hosts and `*.ingest.sentry.io` are refused unless `SENTRY_DSN` is set. Logfire hosts are refused unless `LOGFIRE_TOKEN` is set. Neither service is a dependency. |
-| `OUTSEND_REPLIES=hold` | Automatic answers to inbound mail. A clear one-line opt-out (`stop`, `unsubscribe`, and the short phrases in `openoutreach/privacy.py`) is still written to the suppression list before any model call. Set `OUTSEND_REPLIES=model` to let the model answer other replies. |
+| `OUTSEND_REPLIES=hold` | Automatic answers to inbound mail. A clear one-line opt-out (`stop`, `unsubscribe`, and the short phrases in `cybrreach/privacy.py`) is still written to the suppression list before any model call. Set `OUTSEND_REPLIES=model` to let the model answer other replies. |
 
 LangChain, LangSmith, LiteLLM, CrewAI, PostHog, Sentry and a Logfire
 exporter are not installed. There is no update check, license ping, or
@@ -86,5 +86,5 @@ usage ping in this package.
 ## Not in this process
 
 No web server is started. `ALLOWED_HOSTS` is empty. The image's command is
-one `openoutreach find` and it exits. GitHub Actions no longer dispatches
+one `cybrreach find` and it exits. GitHub Actions no longer dispatches
 `image-updated` to `eracle/hub.openoutreach.app`.

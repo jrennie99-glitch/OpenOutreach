@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from openoutreach.config.models import SiteConfig
-from openoutreach.privacy import (
+from cybrreach.config.models import SiteConfig
+from cybrreach.privacy import (
     client_context,
     hub_enabled,
     install_env,
@@ -86,7 +86,7 @@ def test_a_stored_contacts_token_is_not_exported(db):
 
 
 def test_enabling_the_hub_is_what_exports_the_token(db, monkeypatch):
-    monkeypatch.setenv("OPENOUTREACH_ENABLE_HUB", "1")
+    monkeypatch.setenv("CYBRREACH_ENABLE_HUB", "1")
     config = SiteConfig.load()
     config.contacts_api_token = "hub-token"
     config.save()

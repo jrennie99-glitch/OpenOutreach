@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "openoutreach"
+name = "cybrreach"
 # **The base, not the released version.** Major and minor are declared here and bumped by
 # hand when a change deserves it; the patch is derived at publish time from the number of
 # commits since `v0.1.0` (`.github/workflows/deploy.yml`, job `publish-pypi`), because
@@ -14,8 +14,8 @@ description = "Open-source AI lead finder: describe your product, get qualified 
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"
-license-files = ["LICENCE.md"]
-authors = [{ name = "OpenOutreach", email = "hello@openoutreach.app" }]
+license-files = ["LICENCE.md", "NOTICE"]
+authors = [{ name = "AR Dynamics", email = "hello@ardynamicsinc.com" }]
 keywords = [
     "lead-generation",
     "b2b",
@@ -37,7 +37,7 @@ classifiers = [
     "Topic :: Office/Business",
 ]
 
-# Both children are required, not extras: `pip install openoutreach` alone has to be the
+# Both children are required, not extras: `pip install cybrreach` alone has to be the
 # whole find-then-send flow, or the second install is the friction this package exists to
 # remove. Everything the finding and the sending need — pydantic-ai, fastembed, sklearn,
 # the mail transport — arrives through them; what is declared here is what *this* package
@@ -66,15 +66,15 @@ dev = [
 ]
 
 [project.scripts]
-openoutreach = "openoutreach.__main__:main"
+cybrreach = "cybrreach.__main__:main"
 
 [project.urls]
-Homepage = "https://openoutreach.app"
+Homepage = "https://ardynamicsinc.com"
 Source = "https://github.com/eracle/OpenOutreach"
 Issues = "https://github.com/eracle/OpenOutreach/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["openoutreach"]
+packages = ["cybrreach"]
 
 [tool.hatch.build.targets.sdist]
-include = ["openoutreach", "README.md", "LICENCE.md", "LEGAL_NOTICE.md", "PRIVACY_NOTICE.md", "PRIVACY", "pyproject.toml"]
+include = ["cybrreach", "README.md", "LICENCE.md", "LEGAL_NOTICE.md", "PRIVACY_NOTICE.md", "PRIVACY", "pyproject.toml"]

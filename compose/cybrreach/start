@@ -11,5 +11,5 @@ set -o nounset
 # here loops. `find` migrates on the way in; it never prompts, so a container that was not
 # given its `OPENOUTFIND_*` / `OUTSEND_*` variables exits naming the ones it lacked.
 #
-# The goal is the argument: `docker compose run openoutreach 10 emails`.
-exec openoutreach find "${@:-1}"
+# The goal is the argument: `docker compose run cybrreach 10 emails`.
+exec cybrreach find "${@:-1}"

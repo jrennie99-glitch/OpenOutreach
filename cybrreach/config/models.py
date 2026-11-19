@@ -1,4 +1,4 @@
-# openoutreach/config/models.py
+# cybrreach/config/models.py
 """Every answer this install gave, in one row — and the two vocabularies it exports into.
 
 **This is the one place a human's answer is remembered, and this is the program with a
@@ -144,7 +144,7 @@ class SiteConfig(models.Model):
         # The two maps are walked separately, never merged: they are keyed by *field*,
         # and most fields appear in both, so merging them would silently keep one
         # child's variable and drop the other's.
-        from openoutreach.privacy import hub_enabled
+        from cybrreach.privacy import hub_enabled
 
         for mapping in (FINDER_ENV, SENDER_ENV):
             for field, variable in mapping.items():
