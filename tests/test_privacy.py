@@ -11,6 +11,7 @@ from openoutreach.privacy import (
     client_context,
     hub_enabled,
     install_env,
+    install_runtime_guards,
     is_clear_opt_out,
     phone_home_host,
     resend_url_allowed,
@@ -133,6 +134,23 @@ def test_a_one_line_opt_out_is_recognised(body):
 ])
 def test_ordinary_replies_are_not_opt_outs(body):
     assert not is_clear_opt_out(body)
+
+
+def test_the_opt_out_guard_wraps_the_installed_openoutsend():
+    """The guards must survive a sender refactor, not crash on one.
+
+    0.1.88 moved reply handling out of ``emails.steps.reply`` and the old
+    hooks broke app startup. The check now runs against whatever module map
+    the pin actually ships, so a layout change must fail loudly here — in
+    the test run — not at a customer's ``ready()``.
+    """
+    from openoutsend import send_pass
+    from openoutsend.emails import project as project_mod
+
+    install_runtime_guards()
+
+    assert getattr(project_mod.project, "_openoutreach", False) is True
+    assert getattr(send_pass._converse, "_openoutreach", False) is True
 
 
 def test_the_database_file_is_private(tmp_path: Path):
